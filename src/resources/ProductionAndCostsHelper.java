@@ -1,13 +1,20 @@
 package resources;
 
 public class ProductionAndCostsHelper {
+	private static final boolean debug_prints = false;
 	Account acc;
 	double m,k,d;
+	double[] pow11;
 	public ProductionAndCostsHelper(Account acc, double m, double k, double d){
 		this.acc = acc;
 		this.m = m;
 		this.k = k;
 		this.d = d;
+
+		pow11 = new double[60];
+		pow11[0] = 1;
+		for(int i = 1; i < 60; i++)
+			pow11[i] = pow11[i-1]*1.1;
 	}
 	public double getAnsparphaseTage(int[] mc, int[] kc, int[] dc, int[] temps, int[] mn, int[] kn, int[] dn){
 		double prodDaily = 0;
@@ -17,14 +24,10 @@ public class ProductionAndCostsHelper {
 		double prodDailyMet = getProdDailyMet(mc);
 		double prodDailyKris = getProdDailyKris(kc);
 		double prodDailyDeut = getProdDailyDeut(dc, temps);
-		System.out.printf("prodDailyMet: %f\n",prodDailyMet);
-		System.out.printf("prodDailyKris: %f\n",prodDailyKris);
-		System.out.printf("prodDailyDeut: %f\n",prodDailyDeut);
 		if(dc.length < mc.length)
 			prodDailyDeut = prodDailyDeut*mc.length/dc.length;
 		
 		prodDaily = prodDailyMet+(m/k)*prodDailyKris+(m/d)*prodDailyDeut;
-		//System.out.printf("DailyProd: %f\n", prodDaily);
 		if(prodDaily == 0)
 			return 0.0;
 		return costs/(prodDaily+prodDailyDeut);
@@ -50,26 +53,38 @@ public class ProductionAndCostsHelper {
 	}
 	
 	public double getProdMet(int lvl){
-		double base = 30+30*lvl*Math.pow(1.1, lvl);
-		double mod = 1+(acc.getTechnologienI()[4]/100.0);
+		if(debug_prints) System.out.println("getProdMet:");
+		//double base = 30*lvl*Math.pow(1.1, lvl)*acc.getUnispeed();
+		double base = 30*lvl*pow11[lvl]*acc.getUnispeed();
+		double prodPlasma = Math.round((acc.getTechnologienI()[4]/100.0)*base);
+		double prodGeologist = 0;
 		if(acc.isGeologe())
-			mod += 0.1;
-		return base*mod*acc.getUnispeed();
+			prodGeologist += Math.round(0.1*base);
+		if(debug_prints) System.out.printf("base: %d plasma: %f geologe: %f\n",Math.round(base),prodPlasma,prodGeologist);
+		return 30*acc.getUnispeed()+Math.round(base)+prodPlasma+prodGeologist;
 	}
 	public double getProdKris(int lvl){
-		double base = 15+20*lvl*Math.pow(1.1, lvl);
-		double mod = 1+(acc.getTechnologienI()[4]*0.66/100.0);
+		if(debug_prints) System.out.println("getProdKris:");
+		//double base = 20*lvl*Math.pow(1.1, lvl)*acc.getUnispeed();
+		double base = 20*lvl*pow11[lvl]*acc.getUnispeed();
+		double prodPlasma = Math.round((acc.getTechnologienI()[4]*0.66)*base/100.0);
+		double prodGeologist = 0;
 		if(acc.isGeologe())
-			mod += 0.1;
-		return base*mod*acc.getUnispeed();
+			prodGeologist += Math.round(0.1*base);
+		if(debug_prints) System.out.printf("base: %d plasma: %f geologe: %f\n",Math.round(base),prodPlasma,prodGeologist);
+		return 15*acc.getUnispeed()+Math.round(base)+prodPlasma+prodGeologist;
 	}
 	public double getProdDeut(int lvl, int temp){
+		if(debug_prints) System.out.println("getProdDeut:");
 		double tempmod = 1.44 - 0.004*temp;
-		double base = Math.ceil((double) 10*lvl*Math.pow(1.1, lvl)*tempmod);
-		double mod = 1+(acc.getTechnologienI()[4]*0.33/100.0);
+		//double base = 10*lvl*Math.pow(1.1, lvl)*tempmod*acc.getUnispeed();
+		double base = 10*lvl*pow11[lvl]*tempmod*acc.getUnispeed();
+		double prodPlasma = Math.round((acc.getTechnologienI()[4]*0.33/100.0)*base);
+		double prodGeologist = 0;
 		if(acc.isGeologe())
-			mod += 0.1;
-		return base*mod*acc.getUnispeed();
+			prodGeologist += Math.round(0.1*base);
+		if(debug_prints) System.out.printf("base: %d plasma: %f geologe: %f\n",Math.round(base),prodPlasma,prodGeologist);
+		return Math.round(base)+prodPlasma+prodGeologist;
 	}
 	
 	private double getCosts(int[] mc, int[] kc, int[] dc, int[] mn, int[] kn, int[] dn){
@@ -89,21 +104,16 @@ public class ProductionAndCostsHelper {
 	}
 	private double getMetalmineCost(int i, int j) {
 		double metalminecost = (120+(m/k)*30)*(Math.pow(1.5,j)-Math.pow(1.5,i));
-		//if(j==41)
-		//	System.out.printf("metalminecost i=%d j=%d: %f\n", i,j,metalminecost);
 		return metalminecost;
 		
 	}
 	private double getCrystalmineCost(int i, int j) {
 		double crystalminecost = (80+(m/k)*40)*(Math.pow(1.6,j)-Math.pow(1.6,i));
-		//if(j==34)
-		//	System.out.printf("crystalminecost i=%d j=%d: %f\n", i,j,crystalminecost);
 		return crystalminecost;
 		
 	}
 	private double getDeuteriumsynthCost(int i, int j) {
 		double deuteriumsynthcost = (450+(m/k)*150)*(Math.pow(1.5,j)-Math.pow(1.5,i));
-//		System.out.printf("deuteriumsynthcost i=%d j=%d: %f\n", i,j,deuteriumsynthcost);
 		return deuteriumsynthcost;
 		
 	}

@@ -79,6 +79,7 @@ public class Main {
     private JPanel top, bottom, panelAmortisation;
     private JScrollPane scrollPaneAmortisation;
     private JTextPane textAmortisation;
+    private JTextField currencyM, currencyC, currencyD;
     private Integer[] numPlanetsArrDropdown = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
     private String[] selectLanguage = {"Deutsch", "English"};
     private JComboBox tabV_numPlanetsDropdown, tabA_numPlanetsDropdown, tabD_numPlanetsDropdown, tabV_selectLanguage;
@@ -127,7 +128,15 @@ public class Main {
         };
         ActionListener actionAmortlisteButton = new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
-        		amo = new Amortisation(acc, 3.0, 2.0, 1.0);
+        		double m = 0, c = 0, d = 0;
+        		m = Double.valueOf(currencyM.getText());
+        		System.out.printf("m: %f c: %f d: %f\n",m,c,d);
+        		c = Double.valueOf(currencyC.getText());
+        		d = Double.valueOf(currencyD.getText());
+        		if(m > 0.0 && c > 0.0 && d > 0.0)
+        			amo = new Amortisation(acc, m, c, d);
+        		else
+        			amo = new Amortisation(acc, 3.0, 2.0, 1.0);
         		ArrayList<String> amoList = amo.getAmortisationsliste();
         		StringBuilder sb = new StringBuilder();
         		for(String x : amoList)
@@ -255,6 +264,7 @@ public class Main {
         tabV_table = new JTable(){
         	@Override
         	public boolean isCellEditable(int row, int col){if(col == 0) return false; else	return true;} };
+        tabV_table.setColumnSelectionAllowed(true);
         tabV_table.setCellSelectionEnabled(true);
         tabV_table.setFillsViewportHeight(true);
         tabV_table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -268,6 +278,7 @@ public class Main {
         tabA_table = new JTable(){
         	@Override
         	public boolean isCellEditable(int row, int col){if(col == 0) return false; else	return true;} };
+        tabA_table.setColumnSelectionAllowed(true);
         tabA_table.setCellSelectionEnabled(true);
         tabA_table.setFillsViewportHeight(true);
         tabA_table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -280,6 +291,7 @@ public class Main {
         tabD_table = new JTable(){
         	@Override
         	public boolean isCellEditable(int row, int col){if(col == 0) return false; else	return true;} };
+        tabD_table.setColumnSelectionAllowed(true);
         tabD_table.setCellSelectionEnabled(true);
         tabD_table.setFillsViewportHeight(true);
         tabD_table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -292,6 +304,7 @@ public class Main {
         tabF_table = new JTable(){
         	@Override
         	public boolean isCellEditable(int row, int col){if(col == 0) return false; else	return true;} };
+        tabF_table.setColumnSelectionAllowed(true);
         tabF_table.setCellSelectionEnabled(true);
         tabF_table.setFillsViewportHeight(true);
         tabF_table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -441,6 +454,22 @@ public class Main {
         	}
         });
         
+        // Currency
+        JPanel panelCurrency = new JPanel();
+        panelCurrency.setToolTipText("Currency");
+        currencyM = new JTextField("3.0");
+        currencyC = new JTextField("2.0");
+        currencyD = new JTextField("1.0");
+        panelCurrency.setLayout(new GridLayout(0, 3, 0, 0));
+        panelCurrency.add(currencyM);
+        panelCurrency.add(currencyC);
+        panelCurrency.add(currencyD);
+        panelCurrency.invalidate();
+        tabV_leftPanel.add(panelCurrency);
+        
+        
+        
+        // Tabs: Mines, Facilities, Defence, Research, New Planet
         tabbedPane.addTab(strings.getString("Mines"), null, tabVersorgung, null);
         tabbedPane.addTab(strings.getString("Facilities"), null, tabAnlagen, null);
         tabbedPane.addTab(strings.getString("Defence"), null, tabVerteidigung, null);
@@ -479,8 +508,8 @@ public class Main {
         bottom.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
         bottom.add(checkGeologe);
         top.add(tabbedPane, BorderLayout.CENTER);
-        frame.add(top, BorderLayout.NORTH);
-        frame.add(bottom, BorderLayout.SOUTH);
+        frame.getContentPane().add(top, BorderLayout.NORTH);
+        frame.getContentPane().add(bottom, BorderLayout.SOUTH);
         
         textOutProduction = new JLabel(strings.getString("dailyProd"));
         bottom.add(textOutProduction);

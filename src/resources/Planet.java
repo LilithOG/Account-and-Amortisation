@@ -54,7 +54,7 @@ public class Planet {
 		return productionMetal(Versorgung[1]);
 	}
 	private double productionMetal(int lvl){
-		return Math.ceil((double) 30*lvl*Math.pow(1.1, lvl));		
+		return Math.round((double) 30*lvl*Math.pow(1.1, lvl));		
 	}
 	
 	public double getProductionDayCrystal(){
@@ -64,7 +64,7 @@ public class Planet {
 		return productionCrystal(Versorgung[2]);
 	}
 	private double productionCrystal(int lvl){
-		return Math.ceil((double) 20*lvl*Math.pow(1.1, lvl));
+		return Math.round((double) 20*lvl*Math.pow(1.1, lvl));
 	}
 	
 	public double getProductionDayDeut(){
@@ -75,7 +75,7 @@ public class Planet {
 	}
 	private double productionDeut(int lvl){
 		double tempmod = 1.44 - 0.004 * Versorgung[11];
-		return Math.ceil((double) 10*lvl*Math.pow(1.1, lvl)*tempmod);		
+		return Math.round((double) 10*lvl*Math.pow(1.1, lvl)*tempmod);		
 	}
 	public double getConsumptionFKWDay(){
 		return 24*consumptionFKW(Versorgung[8]);
